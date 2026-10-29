@@ -15,14 +15,20 @@ die(){ printf '\033[31m[✗]\033[0m %s\n' "$*" >&2; exit 1; }
 export PIP_CACHE_DIR="$ROOT/.cache/pip"
 export PLAYWRIGHT_BROWSERS_PATH="$ROOT/.browsers"
 
-PY="$(command -v python3 || command -v python || true)"
-[ -n "$PY" ] || die "没找到 Python，请安装 Python 3.10+"
-"$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' || die "需要 Python 3.10 以上，当前 $($PY -V 2>&1)"
+py_ok(){ "$1" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)' 2>/dev/null; }
+PY=""
+for c in python3.13 python3.12 python3.11 python3 python; do
+  command -v "$c" >/dev/null && py_ok "$c" && { PY="$(command -v "$c")"; break; }
+done
+[ -n "$PY" ] || die "需要 Python 3.11 以上，当前 $( (python3 -V || python -V) 2>&1 | head -1)"
 ok "$($PY -V 2>&1)"
 
 if command -v node >/dev/null; then ok "Node.js $(node -v)"
 else warn "没找到 Node.js：Cookie 账号的验证和出片会失败，请安装 Node.js 18+"; fi
 
+if [ -x .venv/bin/python ] && ! py_ok .venv/bin/python; then
+  warn "已有 .venv 是 $(.venv/bin/python -V 2>&1)，改用 $($PY -V 2>&1) 重建"; rm -rf .venv
+fi
 [ -x .venv/bin/python ] || { info "创建虚拟环境 .venv ..."; "$PY" -m venv .venv; }
 REQ_HASH="$(cat requirements.txt deploy-extra-requirements.txt | cksum | awk '{print $1}')"
 if [ "$(cat .venv/.deps-ok 2>/dev/null || true)" != "$REQ_HASH" ]; then

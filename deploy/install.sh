@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dola-pool 一键部署脚本（Ubuntu 20.04+ / Debian 11+，x86_64 / arm64）
+# dola-pool 一键部署脚本（Ubuntu 20.04+ / Debian 12+，x86_64 / arm64；Ubuntu 上 Python 低于 3.11 时自动装 3.12）
 #
 # 用法一：下载 Release 包解压后，在项目目录里执行
 #   sudo bash deploy/install.sh
@@ -52,10 +52,26 @@ export DEBIAN_FRONTEND=noninteractive
 c_info "安装系统依赖（python3 / venv / xvfb / ffmpeg / git）..."
 apt-get update -qq
 apt-get install -y -qq python3 python3-venv python3-pip xvfb ffmpeg git curl ca-certificates xz-utils >/dev/null
-PY=python3
-"$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' \
-  || die "需要 Python 3.10 以上，当前是 $($PY -V 2>&1)。请升级系统（Ubuntu 22.04+ / Debian 12+）。"
-c_ok "Python $($PY -V 2>&1 | awk '{print $2}')"
+# 代码用到 asyncio.timeout 等 3.11+ 特性；Ubuntu 22.04 自带 3.10，跑起来会在验证/出片时报错
+py_ok(){ "$1" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)' 2>/dev/null; }
+find_py(){
+  local c
+  for c in python3.13 python3.12 python3.11 python3; do
+    command -v "$c" >/dev/null && py_ok "$c" && { command -v "$c"; return 0; }
+  done
+  return 1
+}
+PY="$(find_py || true)"
+if [ -z "$PY" ] && [ "$(. /etc/os-release 2>/dev/null; echo "${ID:-}")" = "ubuntu" ]; then
+  c_info "系统 Python 低于 3.11，从 deadsnakes PPA 安装 Python 3.12 ..."
+  apt-get install -y -qq software-properties-common >/dev/null
+  add-apt-repository -y ppa:deadsnakes/ppa >/dev/null 2>&1 \
+    && apt-get install -y -qq python3.12 python3.12-venv >/dev/null \
+    || c_warn "Python 3.12 安装失败"
+  PY="$(find_py || true)"
+fi
+[ -n "$PY" ] || die "需要 Python 3.11 以上，当前是 $(python3 -V 2>&1)。请升级系统（Ubuntu 22.04+ / Debian 12+）或改用 Docker 部署。"
+c_ok "Python $("$PY" -V 2>&1 | awk '{print $2}')"
 
 # Node.js：纯 API 出片的 bdms 签名依赖它（缺了会导致验证/出片失败）
 node_major(){ command -v node >/dev/null && node -v | sed 's/^v\([0-9]*\).*/\1/' || echo 0; }
@@ -104,6 +120,12 @@ c_ok "代码就绪：$DOLA_DIR"
 as_user(){ runuser -u "$DOLA_USER" -- env HOME="$(getent passwd "$DOLA_USER" | cut -d: -f6)" "$@"; }
 
 c_info "创建虚拟环境并安装 Python 依赖（首次约 2~5 分钟）..."
+# 老版本脚本用 3.10 建的 venv 要换掉，旧的留作备份
+if [ -x "$DOLA_DIR/.venv/bin/python" ] && ! py_ok "$DOLA_DIR/.venv/bin/python"; then
+  c_warn "已有虚拟环境是 $("$DOLA_DIR/.venv/bin/python" -V 2>&1)，改用 $("$PY" -V 2>&1) 重建（旧的移到 .venv-old）"
+  rm -rf "$DOLA_DIR/.venv-old"
+  mv "$DOLA_DIR/.venv" "$DOLA_DIR/.venv-old"
+fi
 [ -x "$DOLA_DIR/.venv/bin/python" ] || as_user "$PY" -m venv "$DOLA_DIR/.venv"
 as_user "$DOLA_DIR/.venv/bin/pip" install -q --upgrade pip
 as_user "$DOLA_DIR/.venv/bin/pip" install -q -r "$DOLA_DIR/requirements.txt" -r "$DOLA_DIR/deploy-extra-requirements.txt"

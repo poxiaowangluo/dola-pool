@@ -97,7 +97,7 @@ Mỗi tác vụ liên tục đổi tài khoản để tạo video trong **tổng
 
 ## Triển khai một lệnh (khuyến nghị)
 
-**Máy chủ Linux** (Ubuntu 20.04+ / Debian 11+), một lệnh cài đặt xong và đăng ký thành dịch vụ hệ thống:
+**Máy chủ Linux** (Ubuntu 20.04+ / Debian 12+), một lệnh cài đặt xong và đăng ký thành dịch vụ hệ thống:
 
 ```bash
 # Truy cập trực tiếp bằng IP:8002
@@ -116,7 +116,7 @@ Chạy lại cùng lệnh đó là nâng cấp, cấu hình và dữ liệu đ�
 - macOS / Linux: `bash start-local.sh`
 
 Lần chạy đầu tiên sẽ tự tạo môi trường ảo, cài phụ thuộc, tải Chromium, rồi mở `http://127.0.0.1:8002/`.
-Cần cài sẵn Python 3.10+ và Node.js 18+. Nếu máy không ở Nhật Bản / Hàn Quốc thì cần cấu hình proxy (xem [`USAGE.vi.md`](USAGE.vi.md)).
+Cần cài sẵn Python 3.11+ và Node.js 18+. Nếu máy không ở Nhật Bản / Hàn Quốc thì cần cấu hình proxy (xem [`USAGE.vi.md`](USAGE.vi.md)).
 
 ### Triển khai bằng Docker
 
@@ -167,7 +167,7 @@ Chế độ 30 giây `pair` và tính năng lấy lại kết quả ở nền kh
 
 ## Triển khai thủ công
 
-Cần Python 3.10+. dola.com yêu cầu IP đầu ra Nhật Bản/Hàn Quốc, nếu máy chủ ở Trung Quốc đại lục thì bắt buộc phải cấu hình proxy.
+Cần Python 3.11+ (Python 3.10 mặc định của Ubuntu 22.04 không đủ, script cài đặt sẽ tự cài 3.12). dola.com yêu cầu IP đầu ra Nhật Bản/Hàn Quốc, nếu máy chủ ở Trung Quốc đại lục thì bắt buộc phải cấu hình proxy.
 
 ```bash
 git clone https://github.com/Roins-hub/dola-pool.git

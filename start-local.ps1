@@ -24,9 +24,9 @@ foreach ($cand in @("py -3", "python", "python3")) {
     if ($LASTEXITCODE -eq 0 -and $v) { $py = $parts; break }
   } catch {}
 }
-if (-not $py) { Fail "没找到 Python。请安装 Python 3.10+（https://www.python.org/downloads/ ，安装时勾选 Add to PATH）" }
-$ver = & $py[0] $py[1..($py.Length-1)] -c "import sys;print(1 if sys.version_info>=(3,10) else 0)"
-if ($ver -ne "1") { Fail "Python 版本太低，需要 3.10 以上" }
+if (-not $py) { Fail "没找到 Python。请安装 Python 3.11+（https://www.python.org/downloads/ ，安装时勾选 Add to PATH）" }
+$ver = & $py[0] $py[1..($py.Length-1)] -c "import sys;print(1 if sys.version_info>=(3,11) else 0)"
+if ($ver -ne "1") { Fail "Python 版本太低，需要 3.11 以上" }
 Ok ("Python " + (& $py[0] $py[1..($py.Length-1)] -V))
 
 # ---------- Node.js（纯 API 出片签名需要）----------

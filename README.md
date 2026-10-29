@@ -104,7 +104,7 @@ OpenAI 兼容、**同步返回**：`POST /v1/images/generations`（文生图）�
 
 ## 一键部署（推荐）
 
-**Linux 服务器**（Ubuntu 20.04+ / Debian 11+），一条命令装好并注册为系统服务：
+**Linux 服务器**（Ubuntu 20.04+ / Debian 12+），一条命令装好并注册为系统服务：
 
 ```bash
 # 直接用 IP:8002 访问
@@ -123,7 +123,7 @@ curl -fsSL https://github.com/Roins-hub/dola-pool/releases/latest/download/insta
 - macOS / Linux：`bash start-local.sh`
 
 首次运行会自动建虚拟环境、装依赖、下载 Chromium，然后打开 `http://127.0.0.1:8002/`。
-需要提前装好 Python 3.10+ 和 Node.js 18+。本机不在日本 / 韩国时需要配代理（见 [`USAGE.md`](USAGE.md)）。
+需要提前装好 Python 3.11+ 和 Node.js 18+。本机不在日本 / 韩国时需要配代理（见 [`USAGE.md`](USAGE.md)）。
 
 ### Docker 部署
 
@@ -174,7 +174,7 @@ sticky session；验证、提交和轮询都走该 profile。命中 `710022002` 
 
 ## 手动部署
 
-需要 Python 3.10+。dola.com 要求日本/韩国出口，服务器在大陆时必须配置代理。
+需要 Python 3.11+（Ubuntu 22.04 自带 3.10 不够，一键脚本会自动装 3.12）。dola.com 要求日本/韩国出口，服务器在大陆时必须配置代理。
 
 ```bash
 git clone https://github.com/Roins-hub/dola-pool.git
