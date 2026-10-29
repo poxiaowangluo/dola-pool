@@ -1,5 +1,18 @@
 # 更新日志
 
+## 2.6.5 — 2026-10-30
+
+### 运行环境要求 Python 3.11+
+
+- 代码使用 `asyncio.timeout`（3.11 起才有），在 Ubuntu 22.04 自带的 Python 3.10 上安装后，验证账号和出片会报 `module 'asyncio' has no attribute 'timeout'`。
+- `deploy/install.sh` 依次选用 python3.13/3.12/3.11；Ubuntu 上都没有时从 deadsnakes 安装 3.12；已有的 3.11 以下 `.venv` 会重建（旧的保留为 `.venv-old`）。
+- `start-local.sh` / `start-local.ps1` 最低版本提到 3.11，`start-local.sh` 会重建旧版本的 `.venv`。
+- README（中文 / 越南语）改为注明 Python 3.11+、Debian 12+。
+
+### 同步上游
+
+- 包含上游 v2.6.4 的全部改动（见下方 2.6.4）。
+
 ## 2.6.4 — 2026-10-30
 
 ### 每日额度与 Dola 对齐
